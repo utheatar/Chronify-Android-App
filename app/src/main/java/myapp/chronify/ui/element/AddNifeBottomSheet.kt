@@ -36,6 +36,7 @@ import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -96,7 +97,7 @@ fun AddNifeBottomSheetContent(
     modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val uiState = viewModel.uiState
+    val uiState by viewModel.uiState.collectAsState()
     var showDateTimePicker by remember { mutableStateOf(false) }
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -118,6 +119,7 @@ fun AddNifeBottomSheetContent(
                 modifier = Modifier.align(Alignment.CenterEnd)
             ) { Text(stringResource(string.submit)) }
         }
+
         // title and isFinished
         Row(
             modifier = Modifier

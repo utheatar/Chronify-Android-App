@@ -47,6 +47,7 @@ import myapp.chronify.R.string
 import myapp.chronify.R.dimen
 import myapp.chronify.data.schedule.ScheduleEntity
 import myapp.chronify.ui.element.components.AppTopBar
+import myapp.chronify.ui.element.components.OutLinedTextFieldWithSuggestion
 import myapp.chronify.ui.navigation.NavigationRoute
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
 import myapp.chronify.ui.viewmodel.StatisticsViewModel
@@ -103,11 +104,11 @@ fun StatisticsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // 搜索框
-                    OutlinedTextField(
-                        value = uiState.searchQuery,
+                    OutLinedTextFieldWithSuggestion(
+                        initialValue = uiState.searchQuery,
+                        suggestions = uiState.suggestions,
                         onValueChange = {
                             viewModel.onSearchQueryChange(it)
-                            showSearchTip = true
                         },
                         label = { Text(stringResource(string.search_schedule)) },
                         singleLine = true,
@@ -124,64 +125,30 @@ fun StatisticsScreen(
                         )
                     }
                 }
-
-                // 显示建议
-                if (uiState.searchQuery.isNotBlank() && showSearchTip) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .offset(y = 56.dp)
-                            .fillMaxWidth()
-                            .zIndex(2f)
-                            .background(
-                                MaterialTheme.colorScheme.surfaceVariant,
-                                RoundedCornerShape(dimensionResource(dimen.padding_small))
-                            )
-                            .padding(dimensionResource(dimen.padding_small))
-                    ) {
-                        items(suggestions) { suggestion ->
-                            Text(
-                                text = suggestion,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        viewModel.onSearchQueryChange(suggestion)
-                                        showSearchTip = false
-                                    }
-                            )
-                        }
-                    }
-                }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            StatisticsContent(uiState)
-            // test
-            Text(
-                text = "test",
-                modifier = Modifier.fillMaxWidth()
-            )
-
-
-
-            // 显示选中日期的Schedules
-            // selectedDate?.let { date ->
-            //     val dailySchedules = schedules.filter {
-            //         it.endDT?.toLocalDate() == date
-            //     }
-            //     if (dailySchedules.isNotEmpty()) {
-            //         LazyColumn {
-            //             items(dailySchedules) { schedule ->
-            //                 Text(
-            //                     text = "${schedule.title} - ${schedule.endDT}",
-            //                     modifier = Modifier.padding(vertical = 4.dp)
-            //                 )
-            //             }
-            //         }
-            //     }
-            // }
         }
     }
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    StatisticsContent(uiState)
+
+    // 显示选中日期的Schedules
+    // selectedDate?.let { date ->
+    //     val dailySchedules = schedules.filter {
+    //         it.endDT?.toLocalDate() == date
+    //     }
+    //     if (dailySchedules.isNotEmpty()) {
+    //         LazyColumn {
+    //             items(dailySchedules) { schedule ->
+    //                 Text(
+    //                     text = "${schedule.title} - ${schedule.endDT}",
+    //                     modifier = Modifier.padding(vertical = 4.dp)
+    //                 )
+    //             }
+    //         }
+    //     }
+    // }
 }
 
 

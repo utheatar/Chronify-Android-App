@@ -28,6 +28,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,10 +50,11 @@ import myapp.chronify.data.nife.NifeType
 import myapp.chronify.ui.element.components.AppTopBar
 import myapp.chronify.ui.element.DateTimePickerDialogLDT
 import myapp.chronify.ui.element.components.EnumDropdown
+import myapp.chronify.ui.element.components.OutLinedTextFieldWithSuggestion
 import myapp.chronify.ui.navigation.NavigationRoute
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
 import myapp.chronify.ui.viewmodel.NifeEditViewModel
-import myapp.chronify.ui.viewmodel.NifeUiState
+import myapp.chronify.ui.viewmodel.NifeUpsertViewModel
 import myapp.chronify.utils.toFriendlyString
 import java.time.LocalDateTime
 
@@ -70,8 +72,9 @@ fun EditNifeScreen(
     modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val uiState by viewModel.uiState.collectAsState()
     // 由于viewModel中的uiState是异步加载，而在异步任务完成之前，uiState是空的，所以需要判断是否加载完成
-    val isLoading = viewModel.uiState.nife.id == 0 // 表示数据未加载
+    val isLoading = uiState.nife.id == 0 // 表示数据未加载
 
     Scaffold(
         topBar = {
@@ -88,7 +91,7 @@ fun EditNifeScreen(
                 },
                 actions = {
                     IconButton(
-                        enabled = viewModel.uiState.isValid,
+                        enabled = uiState.isValid,
                         onClick = {
                             coroutineScope.launch { viewModel.save() }
                             navigateBack()
@@ -108,7 +111,7 @@ fun EditNifeScreen(
             Text(text = "Loading...", modifier = Modifier.fillMaxWidth())
         } else {
             EditContent(
-                uiState = viewModel.uiState,
+                uiState = uiState,
                 onUiStateChange = viewModel::updateUiState,
                 modifier = Modifier
                     .padding(
@@ -126,7 +129,7 @@ fun EditNifeScreen(
 
 @Composable
 fun EditContent(
-    uiState: NifeUiState,
+    uiState: NifeUpsertViewModel.NifeUiState,
     onUiStateChange: (Nife) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -137,6 +140,7 @@ fun EditContent(
         NifeInputForm(
             nife = uiState.nife,
             onValueChange = onUiStateChange,
+            suggestions = uiState.suggestedTitles,
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -146,6 +150,7 @@ fun EditContent(
 fun NifeInputForm(
     nife: Nife,
     onValueChange: (Nife) -> Unit,
+    suggestions: List<String>,
     modifier: Modifier
 ) {
     Column(
@@ -153,9 +158,10 @@ fun NifeInputForm(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(dimen.padding_medium))
     ) {
         // Title
-        OutlinedTextField(
-            value = nife.title,
+        OutLinedTextFieldWithSuggestion(
+            initialValue = nife.title,
             onValueChange = { onValueChange(nife.copy(title = it)) },
+            suggestions = suggestions,
             label = { Text(stringResource(string.title_req)) },
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(

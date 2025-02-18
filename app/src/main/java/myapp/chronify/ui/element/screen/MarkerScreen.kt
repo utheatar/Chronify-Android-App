@@ -333,7 +333,7 @@ private fun NifeCard(
                 // title
                 Text(
                     text = item.title,
-                    maxLines = 2,   // 限制最大行数
+                    maxLines = 3,   // 限制最大行数
                     overflow = TextOverflow.Ellipsis, // 超出部分显示省略号
                     style = MaterialTheme.typography.titleLarge
                 )

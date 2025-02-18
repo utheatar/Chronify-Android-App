@@ -1,22 +1,19 @@
 package myapp.chronify.ui.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.Update
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import myapp.chronify.data.PreferencesRepository
 import myapp.chronify.data.nife.Nife
 import myapp.chronify.data.nife.NifeRepository
-import myapp.chronify.data.nife.NifeType
 import myapp.chronify.ui.element.screen.EditNifeScreenRoute
-import java.time.LocalDateTime
-
 
 
 abstract class NifeUpsertViewModel(
@@ -27,22 +24,15 @@ abstract class NifeUpsertViewModel(
     data class NifeUiState(
         val nife: Nife = Nife(title = ""),
         val isValid: Boolean = false,
-        val invalidInfo: String = ""
+        val invalidInfo: String = "",
+        val suggestedTitles: List<String> = emptyList()
     )
 
     /**
      * Holds current [NifeUiState]
      */
-    var uiState by mutableStateOf(NifeUiState())
-        protected set
-
-    // 公共的偏好设置观察
-    // val weekStartFromSunday = preferencesRepository.getPreference(PreferencesKey.DisplayPref.WeekStartFromSunday)
-    //     .stateIn(
-    //         scope = viewModelScope,
-    //         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-    //         initialValue = false
-    //     )
+    protected val _uiState = MutableStateFlow(NifeUiState())
+    val uiState: StateFlow<NifeUiState> = _uiState.asStateFlow()
 
     /**
      * Updates the [uiState] with the value provided in the argument.
@@ -50,18 +40,28 @@ abstract class NifeUpsertViewModel(
      * and any other operation that needs to be done after updating the UI state.
      */
     fun updateUiState(nife: Nife, modifyAfterUpdate: Boolean = true) {
-        uiState = uiState.copy(
-            nife = nife,
-            isValid = validateInput(nife)
-        )
-        if (modifyAfterUpdate)
-            modifyAfterUpdatingUiState()
+        viewModelScope.launch {
+            _uiState.update { current ->
+                current.copy(
+                    nife = nife,
+                    isValid = validateInput(nife),
+                    suggestedTitles =
+                    if (nife.title.isNotBlank()) {
+                        repository.getSimilarTitles(nife.title).first()
+                    } else {
+                        emptyList()
+                    }
+                )
+            }
+            if (modifyAfterUpdate) modifyAfterUpdatingUiState()
+        }
     }
+
 
     /**
      * validates the input values of [Nife] object
      */
-    protected fun validateInput(nife: Nife = uiState.nife): Boolean {
+    protected fun validateInput(nife: Nife = _uiState.value.nife): Boolean {
         // TODO: Add more validation rules, and update invalidInfo
         return nife.title.isNotBlank()
     }
@@ -70,8 +70,30 @@ abstract class NifeUpsertViewModel(
     open fun modifyAfterUpdatingUiState() {
     }
 
+    // 重置 UI 状态
+    protected open fun resetUiState() {
+        _uiState.update {
+            it.copy(
+                nife = Nife(title = "", beginDT = null, endDT = null),
+                isValid = false,
+                invalidInfo = "",
+                suggestedTitles = emptyList(),
+            )
+        }
+    }
+
     // 抽象保存方法
-    abstract suspend fun save(clearAfterSave: Boolean = true)
+    abstract suspend fun save(resetAfterSave: Boolean = true)
+
+
+    // 公共的偏好设置观察
+    // val weekStartFromSunday =
+    // preferencesRepository.getPreference(PreferencesKey.DisplayPref.WeekStartFromSunday)
+    //     .stateIn(
+    //         scope = viewModelScope,
+    //         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+    //         initialValue = false
+    //     )
 }
 
 class NifeAddViewModel(
@@ -81,16 +103,13 @@ class NifeAddViewModel(
 
     // override fun modifyAfterUpdatingUiState() {}
 
-    override suspend fun save(clearAfterSave: Boolean) {
+    override suspend fun save(resetAfterSave: Boolean) {
         if (validateInput()) {
-            repository.insert(uiState.nife)
+            repository.insert(uiState.value.nife)
         }
-        if (clearAfterSave)
-            uiState = NifeUiState(nife = Nife(title = ""))
-
+        if (resetAfterSave)
+            resetUiState()
     }
-
-
 }
 
 class NifeEditViewModel(
@@ -103,22 +122,17 @@ class NifeEditViewModel(
 
     init {
         viewModelScope.launch {
-            uiState = NifeUiState(
-                nife = repository.getNifeById(nifeId).filterNotNull().first(),
-                isValid = true
-            )
+            val nife = repository.getNifeById(nifeId).filterNotNull().first()
+            _uiState.value = NifeUiState(nife = nife, isValid = true)
         }
     }
 
     // override fun modifyAfterUpdatingUiState() {}
 
-    override suspend fun save(clearAfterSave: Boolean) {
+    override suspend fun save(resetAfterSave: Boolean) {
         if (validateInput()) {
-            repository.update(uiState.nife)
+            repository.update(uiState.value.nife)
         }
-        if (clearAfterSave)
-            uiState = NifeUiState(nife = Nife(title = ""))
-
     }
 }
 
