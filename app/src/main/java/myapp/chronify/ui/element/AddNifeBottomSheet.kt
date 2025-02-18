@@ -189,7 +189,6 @@ fun AddNifeBottomSheetContent(
                 },
                 modifier = Modifier.align(Alignment.CenterVertically)
             )
-
         }
     }
 

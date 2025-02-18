@@ -17,16 +17,18 @@ import myapp.chronify.data.nife.NifeType
 import myapp.chronify.ui.element.screen.EditNifeScreenRoute
 import java.time.LocalDateTime
 
-data class NifeUiState(
-    val nife: Nife = Nife(title = ""),
-    val isValid: Boolean = false,
-    val invalidInfo: String = ""
-)
+
 
 abstract class NifeUpsertViewModel(
     protected val repository: NifeRepository,
     protected val preferencesRepository: PreferencesRepository,
 ) : ViewModel() {
+
+    data class NifeUiState(
+        val nife: Nife = Nife(title = ""),
+        val isValid: Boolean = false,
+        val invalidInfo: String = ""
+    )
 
     /**
      * Holds current [NifeUiState]

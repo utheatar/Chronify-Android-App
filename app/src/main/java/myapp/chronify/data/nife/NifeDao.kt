@@ -49,6 +49,12 @@ interface NifeDao {
     )
     fun getSimilarTitles(query: String, limit: Int): Flow<List<String>>
 
+    @Query("SELECT * FROM Nife WHERE title = :title AND isFinished = 1 ORDER BY endDT DESC")
+    fun getFinishedNifesByTitleAsPgSrc(title: String): PagingSource<Int, Nife>
+
+    @Query("SELECT * FROM Nife WHERE isFinished = 1 ORDER BY endDT DESC")
+    fun getFinishedNifesForAllAsPgSrc(): PagingSource<Int, Nife>
+
     // 带过滤条件的分页（示例：按类型过滤）
     @Query("SELECT * FROM Nife WHERE type = :type ORDER BY createdDT DESC")
     fun pagingSourceByType(type: NifeType): PagingSource<Int, Nife>

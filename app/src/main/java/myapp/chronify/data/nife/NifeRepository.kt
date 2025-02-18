@@ -23,9 +23,9 @@ class NifeRepository(private val dao: NifeDao) {
 
     /**
      * 获取所有 Nife 数据
-     * @return Flow<List<Nife>>
      * @param pageSize 每页加载数量，默认为 7
      * @param initialLoadSize 首次加载数量，默认为 21
+     * @return Flow<List<Nife>>
      * @see NifeDao.getAllNifesAsPgSrc
      */
     fun getAllNifesAsPgFlow(
@@ -72,12 +72,34 @@ class NifeRepository(private val dao: NifeDao) {
 
     /**
      * 获取相似标题
-     * @return Flow<List<String>>
      * @param query 查询关键字
      * @param limit 返回数量，默认为 6
+     * @return Flow<List<String>>
      * @see NifeDao.getSimilarTitles
      */
     fun getSimilarTitles(query: String, limit: Int = 6): Flow<List<String>> {
         return dao.getSimilarTitles(query, limit)
+    }
+
+    /**
+     * 获取指定标题的已完成 Nife 数据
+     * @param title 标题，若为 "" 则获取所有已完成 Nife 数据
+     * @return Flow<PagingData<Nife>>
+     * @see NifeDao
+     */
+    fun getFinishedNifesByTitleAsPgFlow(title: String): Flow<PagingData<Nife>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 7,
+                enablePlaceholders = false,
+                initialLoadSize = 21
+            ),
+            pagingSourceFactory = {
+                if (title.isNotBlank())
+                    dao.getFinishedNifesByTitleAsPgSrc(title)
+                else
+                    dao.getFinishedNifesForAllAsPgSrc()
+            }
+        ).flow
     }
 }
