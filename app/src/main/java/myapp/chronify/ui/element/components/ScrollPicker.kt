@@ -38,7 +38,7 @@ fun IntListPicker(
     itemHeight: Dp = 40.dp,
     titleStr: String = "Int Picker",
     showTitle: Boolean = true,
-    visibleRange: Int = 1,
+    visibleRadius: Int = 1,
     modifier: Modifier = Modifier
 ) {
 
@@ -50,7 +50,7 @@ fun IntListPicker(
 
     // 列表状态
     val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = valueList.size + initialSelectedIndex - visibleRange
+        initialFirstVisibleItemIndex = valueList.size + initialSelectedIndex - visibleRadius
     )
 
     // 选中项的索引
@@ -70,7 +70,7 @@ fun IntListPicker(
             state = listState,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(((visibleRange * 2 + 1) * (itemHeight.value.toInt())).dp),
+                .height(((visibleRadius * 2 + 1) * (itemHeight.value.toInt())).dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             items(infiniteList.size) { index ->
@@ -92,7 +92,7 @@ fun IntListPicker(
 
         // 监听滚动状态
         LaunchedEffect(listState.firstVisibleItemIndex) {
-            val centerIndex = listState.firstVisibleItemIndex + visibleRange
+            val centerIndex = listState.firstVisibleItemIndex + visibleRadius
             if (centerIndex != selectedIndex) {
                 selectedIndex = centerIndex
                 onItemSelected(selectedIndex, infiniteList[selectedIndex])
@@ -111,21 +111,21 @@ fun IntListPicker(
 
                     // 计算最接近中心的项
                     val centerOffset = -firstVisibleItemOffset.toFloat() / firstVisibleItemHeight
-                    val targetIndex = firstVisibleItemIndex + centerOffset.toInt() + visibleRange
+                    val targetIndex = firstVisibleItemIndex + centerOffset.toInt() + visibleRadius
 
                     // 平滑滚动到目标位置
                     coroutineScope.launch {
-                        listState.animateScrollToItem(targetIndex - visibleRange)
+                        listState.animateScrollToItem(targetIndex - visibleRadius)
                     }
 
                     // 处理循环
                     if (targetIndex < valueList.size) {
                         coroutineScope.launch {
-                            listState.scrollToItem(targetIndex + valueList.size - visibleRange)
+                            listState.scrollToItem(targetIndex + valueList.size - visibleRadius)
                         }
                     } else if (targetIndex >= valueList.size * 2) {
                         coroutineScope.launch {
-                            listState.scrollToItem(targetIndex - valueList.size - visibleRange)
+                            listState.scrollToItem(targetIndex - valueList.size - visibleRadius)
                         }
                     }
                 }
@@ -148,7 +148,7 @@ fun IntPickerDemo() {
             onItemSelected = { _, month ->
                 selectedMonth = month
             },
-            visibleRange = 0,
+            visibleRadius = 0,
             modifier = Modifier.width(300.dp)
         )
     }

@@ -71,6 +71,14 @@
     <string name="statistics_title">Statistics</string>
     <string name="search_schedule">Search Schedule</string>
     <string name="toggle_statistics">toggle statistics mode</string>
+    <!-- settings screen -->
+    <string name="display_settings">Display Settings</string>
+    <string name="week_start_from_sunday">Week starts from Sunday</string>
+    <string name="theme">Theme</string>
+    <string name="import_export_settings">Export &amp; Import</string>
+    <string name="import_">Import</string>
+    <string name="export">Export</string>
+
 
     <!-- bus schedule -->
     <string name="stop_name">Stop Name</string>

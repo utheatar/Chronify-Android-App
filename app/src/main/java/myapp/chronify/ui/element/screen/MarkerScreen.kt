@@ -57,6 +57,7 @@ import myapp.chronify.data.nife.Nife
 import myapp.chronify.data.nife.NifeType
 import myapp.chronify.ui.element.AddNifeBottomSheet
 import myapp.chronify.ui.element.components.AppTopBar
+import myapp.chronify.ui.element.components.ErrorView
 import myapp.chronify.ui.element.exp.SwipeableListItem
 import myapp.chronify.ui.navigation.NavigationRoute
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
@@ -268,17 +269,7 @@ private fun NifeList(
     }
 }
 
-@Composable
-fun ErrorView(content: @Composable () -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Error occurred")
-        content()
-    }
-}
+
 
 
 @Composable

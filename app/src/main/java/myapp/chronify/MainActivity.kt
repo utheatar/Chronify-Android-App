@@ -50,7 +50,6 @@ class MainActivity : ComponentActivity() {
         // }
 
         setContent {
-            // TODO: DataStore
             BlueSimpleTheme {
                 val navController = rememberNavController()
                 val currentRoute =
@@ -102,5 +101,6 @@ class MainActivity : ComponentActivity() {
     //         // 可以在这里执行其他首次启动的初始化操作
     //     }
     // }
+
 }
 

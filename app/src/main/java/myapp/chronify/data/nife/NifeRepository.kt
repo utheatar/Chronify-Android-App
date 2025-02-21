@@ -102,4 +102,10 @@ class NifeRepository(private val dao: NifeDao) {
             }
         ).flow
     }
+
+    fun getAllNifes(): Flow<List<Nife>> {
+        return dao.getAllNifes()
+    }
+
+
 }

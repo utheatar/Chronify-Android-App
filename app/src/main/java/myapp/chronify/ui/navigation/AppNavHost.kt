@@ -33,14 +33,8 @@ fun AppNavHost(
         modifier = modifier
     ) {
 
-        // composable(route = JournalScreenRoute.route) {
-        //     // RemindScreen(navigateToAddScreen = { navController.navigate(AddScheduleScreenRoute.route) })
-        //     JournalScreen(
-        //         navigateToEdit = { navController.navigate("${EditScheduleScreenRoute.route}/$it") }
-        //     )
-        // }
-
         composable(route = MarkerScreenRoute.route){
+            // RemindScreen(navigateToAddScreen = { navController.navigate(AddScheduleScreenRoute.route) })
             MarkerScreen(
                 navigateToEdit = { navController.navigate("${EditNifeScreenRoute.route}/$it") }
             )
@@ -57,7 +51,9 @@ fun AppNavHost(
         }
 
         composable(route = StatisticsScreenRoute.route) {
-            StatisticsScreen()
+            StatisticsScreen(
+                navigateToEdit = { navController.navigate("${EditNifeScreenRoute.route}/$it") }
+            )
         }
 
         composable(route = SettingsScreenRoute.route) {
