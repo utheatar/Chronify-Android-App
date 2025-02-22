@@ -110,18 +110,16 @@ fun SettingsContent(
                 .fillMaxWidth()
                 .padding(dimensionResource(dimen.padding_medium))
         ) {
-            Button(onClick = { /*TODO*/ }) {
+            Button(onClick = {
+                coroutineScope.launch {
+                    viewModel.importIntoDB(context)
+                }
+            }) {
                 Text(stringResource(string.import_))
             }
             Button(onClick = {
                 coroutineScope.launch {
-                    // 示例数据
-                    val data = listOf(
-                        listOf("Name", "Age", "City"),
-                        listOf("John", "28", "New York"),
-                        listOf("Lucy", "32", "London")
-                    )
-                    viewModel.writeCsv(context,"testdata.csv",data)
+                    viewModel.writeCsv(context)
                 }
             }) {
                 Text(stringResource(string.export))

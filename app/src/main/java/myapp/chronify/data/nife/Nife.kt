@@ -40,7 +40,7 @@ data class Nife(
     val endDT: LocalDateTime? = null,
     // for cyclical schedule
     val period: PeriodType? = null,
-    val periodMultiple: Short = 1,
+    val periodMultiple: Int = 1,
     val triggerTimes: Set<Int> = emptySet(),
     // extra info
     val description: String = "",

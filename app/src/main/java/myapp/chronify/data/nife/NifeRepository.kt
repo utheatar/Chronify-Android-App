@@ -11,6 +11,10 @@ class NifeRepository(private val dao: NifeDao) {
         dao.insert(nife)
     }
 
+    suspend fun insertAll(nifes: List<Nife>) {
+        dao.insertAll(nifes)
+    }
+
     suspend fun delete(nife: Nife) {
         dao.delete(nife)
     }

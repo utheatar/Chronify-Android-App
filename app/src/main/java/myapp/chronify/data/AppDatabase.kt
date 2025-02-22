@@ -80,6 +80,35 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("DROP TABLE IF EXISTS ScheduleEntity")
             }
         }
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // 使用 "销毁与重建策略"
+                db.execSQL(
+                    """
+                    CREATE TABLE tmp_YourEntity (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `title` TEXT NOT NULL,
+                        `type` TEXT NOT NULL,
+                        `isFinished` INTEGER NOT NULL,
+                        `createdDT` INTEGER NOT NULL,
+                        `beginDT` INTEGER,
+                        `endDT` INTEGER,
+                        `period` TEXT,
+                        `periodMultiple` INTEGER NOT NULL,
+                        `triggerTimes` TEXT NOT NULL,
+                        `description` TEXT NOT NULL,
+                        `location` TEXT NOT NULL
+                    )
+                    """
+                )
+                // 复制旧数据到临时表
+                db.execSQL("INSERT INTO tmp_YourEntity SELECT * FROM Nife")
+                // 删除旧表
+                db.execSQL("DROP TABLE Nife")
+                // 重命名临时表
+                db.execSQL("ALTER TABLE tmp_YourEntity RENAME TO Nife")
+            }
+        }
 
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
