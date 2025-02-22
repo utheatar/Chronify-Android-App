@@ -16,6 +16,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -39,15 +40,20 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.first
 import myapp.chronify.R.dimen
 import myapp.chronify.R.string
+import myapp.chronify.data.nife.MonthCount
 import myapp.chronify.data.nife.Nife
 import myapp.chronify.ui.element.ScrollableEventCalendar
+import myapp.chronify.ui.element.ScrollableHistogram
 import myapp.chronify.ui.element.components.AppTopBar
 import myapp.chronify.ui.element.components.LazyPagingView
 import myapp.chronify.ui.element.components.OutLinedTextFieldWithSuggestion
 import myapp.chronify.ui.navigation.NavigationRoute
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
 import myapp.chronify.ui.viewmodel.StatisticsViewModel
+import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.util.Calendar
+import java.util.Locale
 
 object StatisticsScreenRoute : NavigationRoute {
     override val route = "statistics"
@@ -142,6 +148,18 @@ fun StatisticsContent(
                 onMenuItemClick = { nife -> navigateToEdit(nife.id) },
             )
         }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        ScrollableHistogram(
+            data = uiState.monthCount,
+            title = {
+                Text(
+                    stringResource(string.monthly_count_chart),
+                    style = MaterialTheme.typography.titleMedium
+                )
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
 
     }
 }

@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import myapp.chronify.data.PreferencesRepository
+import myapp.chronify.data.nife.MonthCount
 import myapp.chronify.data.nife.Nife
 import myapp.chronify.data.nife.NifeRepository
 import myapp.chronify.utils.daysUntil
@@ -38,9 +39,10 @@ class StatisticsViewModel(
     data class StatisticsUiState(
         val searchQuery: String = "",
         val suggestions: List<String> = emptyList(),
-        val isCalendarView: Boolean = true,
         val dateEventMap: Map<LocalDate, List<Nife>> = emptyMap(),
         val timeRange: TimeRange = TimeRange.MONTH,
+        val monthCount: List<MonthCount> = emptyList(),
+        val isCalendarView: Boolean = true,
         val isLoading: Boolean = true,
         val error: String? = null
     )
@@ -59,47 +61,33 @@ class StatisticsViewModel(
         }
         .cachedIn(viewModelScope)
 
-    // 添加一个状态来存储转换后的Map
-    private val _dateEventMap = MutableStateFlow<Map<LocalDate, List<Nife>>>(emptyMap())
-    val dateEventMap: StateFlow<Map<LocalDate, List<Nife>>> = _dateEventMap.asStateFlow()
-
-
-    // init {
-    //     viewModelScope.launch {
-    //         // 在ViewModel中监听PagingData的变化并更新 dateEventMap
-    //         nifesPagingData.collectLatest { pagingData ->
-    //             val dateMap = mutableMapOf<LocalDate, MutableList<Nife>>()
-    //             pagingData.map { nife ->
-    //                 nife.endDT?.toLocalDate()?.let { date ->
-    //                     dateMap.getOrPut(date) { mutableListOf() }.add(nife)
-    //                 }!!
-    //             }
-    //
-    //             _uiState.update { currentState ->
-    //                 currentState.copy(dateEventMap = dateMap)
-    //             }
-    //             _dateEventMap.value = dateMap
-    //         }
-    //
-    //     }
-    // }
-
     // 处理搜索框输入
     fun onSearchQueryChange(query: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(searchQuery = query) }
             _searchQuery.value = query // 更新 StateFlow
-            // 获取标题建议
             if (query.isNotBlank()) {
+                // 获取标题建议
                 val suggestions = repository.getSimilarTitles(query).first()
-                _uiState.update { it.copy(suggestions = suggestions) }
+                // 获取月份统计
+                val monthCount = repository.getMonthCount(query).first()
+                    .map { it.copy(month = it.month.substring(2, 7)) }
+                _uiState.update {
+                    it.copy(
+                        suggestions = suggestions,
+                        monthCount = monthCount
+                    )
+                }
             } else {
-                _uiState.update { it.copy(suggestions = emptyList()) }
+                _uiState.update {
+                    it.copy(
+                        suggestions = emptyList(),
+                        monthCount = emptyList()
+                    )
+                }
             }
-            // update dateMap
-            // _uiState.update { it.copy(
-            //     dateEventMap = convertToDateEventMap(nifesPagingData)
-            // ) }
+            // update month count
+
         }
     }
 

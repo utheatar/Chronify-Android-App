@@ -111,5 +111,8 @@ class NifeRepository(private val dao: NifeDao) {
         return dao.getAllNifes()
     }
 
+    fun getMonthCount(title: String): Flow<List<MonthCount>> {
+        return dao.countByTitleGroupedByMonth(title)
+    }
 
 }

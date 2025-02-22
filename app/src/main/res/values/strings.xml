@@ -71,6 +71,7 @@
     <string name="statistics_title">Statistics</string>
     <string name="search_schedule">Search Schedule</string>
     <string name="toggle_statistics">toggle statistics mode</string>
+    <string name="monthly_count_chart">Monthly Count</string>
     <!-- settings screen -->
     <string name="display_settings">Display Settings</string>
     <string name="week_start_from_sunday">Week starts from Sunday</string>
