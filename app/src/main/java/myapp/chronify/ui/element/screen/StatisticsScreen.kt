@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -28,6 +30,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -103,11 +107,13 @@ fun StatisticsContent(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues,
 ) {
+
     Column(
         modifier = modifier
             .padding(contentPadding)
             .padding(dimensionResource(dimen.padding_small))
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
     ) {
         // 搜索框
         Row(
@@ -146,6 +152,15 @@ fun StatisticsContent(
             ScrollableEventCalendar(
                 markers = convertToMap(lazyItems),
                 onMenuItemClick = { nife -> navigateToEdit(nife.id) },
+                setActiveColor = { count ->
+                    val max = 4
+                    val ratio = (count.coerceAtMost(max).toFloat() / max).coerceIn(0f, 1f)
+                    lerp(
+                        start = Color.LightGray.copy(alpha = .4f),
+                        stop = Color.Green.copy(alpha = .8f),
+                        fraction = ratio
+                    )
+                }
             )
         }
         Spacer(modifier = Modifier.height(16.dp))

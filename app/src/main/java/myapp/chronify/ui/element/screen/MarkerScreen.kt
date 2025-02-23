@@ -58,7 +58,7 @@ import myapp.chronify.data.nife.NifeType
 import myapp.chronify.ui.element.AddNifeBottomSheet
 import myapp.chronify.ui.element.components.AppTopBar
 import myapp.chronify.ui.element.components.ErrorView
-import myapp.chronify.ui.element.exp.SwipeableListItem
+import myapp.chronify.ui.element.components.SwipeableListItem
 import myapp.chronify.ui.navigation.NavigationRoute
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
 import myapp.chronify.ui.viewmodel.MarkerViewModel

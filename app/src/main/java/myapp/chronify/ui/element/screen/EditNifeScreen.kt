@@ -153,6 +153,16 @@ fun NifeInputForm(
     suggestions: List<String>,
     modifier: Modifier
 ) {
+    // 使用remember存储本地状态，防止抖动
+    // beginDT and endDT
+    val beginDT by remember { mutableStateOf(LocalDateTime.now()) }
+    val endDT by remember { mutableStateOf(LocalDateTime.now()) }
+    var showBeginDTPicker by remember { mutableStateOf(false) }
+    var showEndDTPicker by remember { mutableStateOf(false) }
+    // description and location
+    var descriptionState by remember(nife.description) { mutableStateOf(nife.description) }
+    var locationState by remember(nife.location) { mutableStateOf(nife.location) }
+
     Column(
         modifier = modifier.padding(dimensionResource(dimen.padding_medium)),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(dimen.padding_medium))
@@ -212,12 +222,6 @@ fun NifeInputForm(
                 modifier = Modifier
             )
         }
-
-        // beginDT and endDT
-        val beginDT by remember { mutableStateOf(LocalDateTime.now()) }
-        val endDT by remember { mutableStateOf(LocalDateTime.now()) }
-        var showBeginDTPicker by remember { mutableStateOf(false) }
-        var showEndDTPicker by remember { mutableStateOf(false) }
 
         // BeginDT
         OutlinedTextField(
@@ -294,8 +298,11 @@ fun NifeInputForm(
 
         // description
         OutlinedTextField(
-            value = nife.description,
-            onValueChange = { onValueChange(nife.copy(description = it)) },
+            value = descriptionState,
+            onValueChange = {
+                descriptionState = it
+                onValueChange(nife.copy(description = it))
+            },
             label = { Text(stringResource(string.description_req)) },
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
@@ -308,8 +315,11 @@ fun NifeInputForm(
 
         // TODO: location with GPS
         OutlinedTextField(
-            value = nife.location,
-            onValueChange = { onValueChange(nife.copy(location = it)) },
+            value = locationState,
+            onValueChange = {
+                locationState = it
+                onValueChange(nife.copy(location = it))
+            },
             label = { Text(stringResource(string.location_req)) },
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(

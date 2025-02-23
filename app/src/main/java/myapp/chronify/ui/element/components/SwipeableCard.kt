@@ -1,4 +1,4 @@
-package myapp.chronify.ui.element.exp
+package myapp.chronify.ui.element.components
 
 
 import androidx.compose.animation.AnimatedVisibility
@@ -7,7 +7,6 @@ import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
@@ -16,65 +15,23 @@ import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.overscroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
-import myapp.chronify.R.dimen
-import myapp.chronify.R.string
 import kotlin.math.roundToInt
 
 
@@ -91,6 +48,7 @@ fun SwipeableListItem(
     onRightAction: () -> Unit = {},
     leftActionContent: @Composable () -> Unit = {},
     rightActionContent: @Composable () -> Unit = {},
+    overscrollAutoAct: Boolean = false,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
@@ -98,7 +56,7 @@ fun SwipeableListItem(
     val decayAnimationSpec = rememberSplineBasedDecay<Float>()
 
     val dragState = remember {
-        val actionOffset = with(density) { 150.dp.toPx() }
+        val actionOffset = with(density) { 70.dp.toPx() }
         AnchoredDraggableState(
             initialValue = SwipeAnchorValue.Resting,
             anchors = DraggableAnchors {
@@ -106,8 +64,8 @@ fun SwipeableListItem(
                 SwipeAnchorValue.LeftAction at actionOffset
                 SwipeAnchorValue.RightAction at -actionOffset
             },
-            positionalThreshold = { distance -> distance * 0.5f },
-            velocityThreshold = { with(density) { 150.dp.toPx() } },
+            positionalThreshold = { distance -> distance * 0.25f },
+            velocityThreshold = { with(density) { 125.dp.toPx() } },
             snapAnimationSpec = tween(),
             decayAnimationSpec = decayAnimationSpec,
         )
@@ -163,16 +121,19 @@ fun SwipeableListItem(
         }
     }
 
-    LaunchedEffect(dragState) {
-        snapshotFlow { dragState.settledValue }
-            .collectLatest {
-                when (it) {
-                    SwipeAnchorValue.LeftAction -> onLeftAction()
-                    SwipeAnchorValue.RightAction -> onRightAction()
-                    else -> {}
+    if (overscrollAutoAct) {
+        LaunchedEffect(dragState) {
+            snapshotFlow { dragState.settledValue }
+                .collectLatest {
+                    when (it) {
+                        SwipeAnchorValue.LeftAction -> onLeftAction()
+                        SwipeAnchorValue.RightAction -> onRightAction()
+                        else -> {}
+                    }
+                    delay(30)
+                    dragState.animateTo(SwipeAnchorValue.Resting)
                 }
-                delay(30)
-                dragState.animateTo(SwipeAnchorValue.Resting)
-            }
+        }
     }
+
 }
